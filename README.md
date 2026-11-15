@@ -1,6 +1,7 @@
 # Email Spam Classifier
 
 An NLP-based email spam classifier using TF-IDF and machine learning to distinguish spam from legitimate emails.
+Contains 2 scripts, 'spam_email_preprocessor.ipynb' to preprocess 'email_origin.csv' raw data and extract the actual email text, and 'spam_email_classifier.ipynb' to train the actual model.
 
 ## Features
 - Extracts and cleans raw email content.
