@@ -7,7 +7,7 @@ An NLP-based email spam classifier using TF-IDF and machine learning to distingu
 - Converts email text into TF-IDF features.
 - Compares Logistic Regression, Multinomial Naive Bayes, Complement Naive Bayes, and Linear SVM.
 - Uses 5-fold stratified cross-validation for model evaluation.
-- Performs error analysis based on email length and URL presence.
+- Performs error analysis based on email length.
 
 ## Best Model
 
