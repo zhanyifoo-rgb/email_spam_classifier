@@ -1,232 +1,51 @@
 # Email Spam Classifier
 
-An NLP-based machine learning project that classifies emails as **Spam** or **Ham** (legitimate email) using TF-IDF feature extraction and Logistic Regression. The project explores word-level and character-level n-grams, hybrid feature engineering, model evaluation, and classification error analysis.
-
-## 1. Project Overview
-
-The objective of this project is to develop a machine learning model capable of automatically identifying spam emails from their text content.
-
-The project explores how different text representations and feature extraction techniques affect classification performance, with particular attention to word patterns, character sequences, email length, and URL presence.
-
-## 2. Dataset
-
-The dataset contains **53,669 labelled emails**.
-
-| Class | Number of emails | Percentage |
-|---|---:|---:|
-| Ham | 23,745 | 44.25% |
-| Spam | 29,924 | 55.75% |
-| **Total** | **53,669** | **100%** |
-
-- Ham (0): Legitimate emails.
-- Spam (1): Unsolicited or unwanted emails.
-
-The dataset has a moderate class imbalance, with spam emails representing approximately 55.75% of the data.
-
-Dataset source: [Add dataset source here]
-
-## 3. Data Preprocessing
-
-Email text was cleaned and normalised before feature extraction.
-
-Preprocessing operations included:
-
-- Converting text to lowercase.
-- Replacing punctuation and newline characters with spaces.
-- Replacing numerical values with a common `escapenumber` token.
-- Compressing consecutive whitespace.
-- Removing unnecessary text formatting.
-
-The objective was to standardise email content while retaining potentially useful information for classification.
-
-## 4. Feature Engineering
-
-### Word-level TF-IDF
-
-Word-level TF-IDF extracts individual words and consecutive word combinations.
-
-Configuration explored:
-
-| Parameter | Setting |
-|---|---|
-| `ngram_range` | (1, 2) |
-| `min_df` | 2 |
-| `max_df` | 0.95 |
-| `stop_words` | Custom stopword list |
-| `sublinear_tf` | True |
-| `max_features` | Configurable |
-
-Word n-grams capture individual spam-related terms and phrases, such as "free money", "claim prize", and "limited offer".
-
-### Character-level TF-IDF
-
-Character-level TF-IDF extracts sequences of characters rather than complete words.
-
-Configuration:
-
-| Parameter | Setting |
-|---|---|
-| `analyzer` | char |
-| `ngram_range` | (2, 6) |
-| `min_df` | 2 |
-| `sublinear_tf` | True |
-
-Character n-grams can capture partial word patterns, unusual spellings, and deliberate character substitutions commonly found in spam emails.
-
-### Hybrid TF-IDF
-
-`FeatureUnion` was used to combine word-level and character-level TF-IDF representations into a single feature matrix.
-
-This approach allows the classifier to learn from both meaningful word combinations and smaller character patterns.
-
-## 5. Model Development
-
-**Logistic Regression** was used as the primary classification algorithm.
-
-It is suitable for high-dimensional, sparse TF-IDF feature matrices and provides probability estimates that can also be used for decision-threshold tuning.
-
-Model evaluation incorporated 5-fold cross-validation to assess consistency across different training and validation subsets.
-
-### Cross-validation results
-
-| Fold | F1-score |
-|---|---:|
-| 1 | 99.05% |
-| 2 | 98.99% |
-| 3 | 98.84% |
-| 4 | 99.02% |
-| 5 | 98.94% |
-| **Mean** | **98.97%** |
-
-Standard deviation: **0.076 percentage points**
-
-The consistently high scores and low standard deviation indicate stable performance across the five validation folds.
-
-## 6. Evaluation Results
-
-The following results are calculated from the evaluation confusion-matrix counts.
-
-### Confusion Matrix
-
-Assuming Spam is the positive class:
-
-| | Predicted Ham | Predicted Spam |
-|---|---:|---:|
-| Actual Ham | 4,714 | 35 |
-| Actual Spam | 22 | 5,963 |
-
-### Classification Metrics
-
-| Metric | Result |
-|---|---:|
-| Accuracy | 99.47% |
-| Precision | 99.42% |
-| Recall | 99.63% |
-| F1-score | 99.52% |
-
-The model achieved high precision and recall, indicating that it correctly identified most spam emails while keeping false positives relatively low.
-
-*Note: These metrics are calculated from the supplied confusion matrix and are separate from the five-fold cross-validation mean.*
-
-## 7. Error Analysis and Findings
-
-Beyond evaluating overall performance, classification errors were investigated to understand where the model struggled.
-
-### A. Email Length Analysis
-
-The average and median email lengths showed noticeable differences between ham and spam emails.
-
-| Class | Number | Mean length | Median length |
-|---|---:|---:|---:|
-| Ham | 23,745 | 380.65 | 215 |
-| Spam | 29,924 | 185.02 | 119 |
-
-Ham emails were generally longer than spam emails.
-
-Further analysis of classification errors revealed:
-
-| Result | Number of emails | Mean length | Median length |
-|---|---:|---:|---:|
-| False Positive | 35 | 138.23 | 116 |
-| False Negative | 22 | 273.82 | 288.5 |
-| True Negative | 4,714 | 381.04 | — |
-| True Positive | 5,963 | 180.71 | — |
-
-**Key findings:**
-
-- False positives tended to be relatively short legitimate emails that were incorrectly classified as spam.
-- False negatives tended to be longer spam emails that the model failed to identify.
-- Shorter ham emails and longer spam emails appear to be more challenging classification cases.
-
-Email length was analysed as a potential explanatory factor; it was not necessarily used as an explicit model feature.
-
-### B. URL Presence Analysis
-
-Classification performance was also examined according to whether emails contained URLs.
-
-| Result | No URL | Contains URL |
-|---|---:|---:|
-| False Positive | 18 | 17 |
-| False Negative | 14 | 8 |
-| True Negative | 1,186 | 3,528 |
-| True Positive | 3,253 | 2,710 |
-
-**Key findings:**
-
-- Emails containing URLs accounted for more observations overall.
-- There were 25 classification errors among 6,263 URL-containing emails.
-- There were 32 classification errors among 4,471 emails without URLs.
-- The observed error rate was approximately 0.40% for emails containing URLs and 0.72% for emails without URLs.
-
-URL presence alone did not explain all classification errors. The model appears to benefit from other textual patterns in addition to URL-related information.
-
-## 8. Key Takeaways
-
-1. Logistic Regression achieved a mean cross-validation F1-score of approximately 98.97%.
-2. The low cross-validation standard deviation indicates consistent performance across folds.
-3. Combining word-level and character-level n-grams provides complementary text representations worth investigating.
-4. Ham emails were generally longer than spam emails in this dataset.
-5. Short legitimate emails and longer spam emails were more challenging cases for the classifier.
-6. URL presence was not associated with a higher observed error rate in the evaluation data.
-
-## 9. Technologies Used
-
-- Python
-- Pandas
-- NumPy
-- Scikit-learn
-- NLTK
-- Matplotlib
-- Seaborn
-- Jupyter Notebook
-- Git / GitHub
-
-## 10. Installation and Usage
-
-Clone the repository:
-
-```bash
-git clone <repository-url>
-cd spam-classifier
+An NLP-based email spam classifier using TF-IDF and machine learning to distinguish spam from legitimate emails.
+
+## Features
+- Extracts and cleans raw email content.
+- Converts email text into TF-IDF features.
+- Compares Logistic Regression, Multinomial Naive Bayes, Complement Naive Bayes, and Linear SVM.
+- Uses 5-fold stratified cross-validation for model evaluation.
+- Performs error analysis based on email length and URL presence.
+
+## Best Model
+
+**Linear SVM**
+
+- TF-IDF features: 30,000
+- N-grams: Unigrams and bigrams
+- Minimum document frequency: 1
+- Mean cross-validation F1-score: **99.50%**
+
+## Project Structure
+
+```text
+email_spam_classifier/
+├── Data/
+│   └── email_preprocessed.csv
+├── spam_email_preprocessor.ipynb
+├── spam_email_classifier.ipynb
+├── requirements.txt
+└── README.md
 ```
 
-Create a virtual environment:
+## Getting Started
 
 ```bash
+git clone https://github.com/zhanyifoo-rgb/email_spam_classifier.git
+cd email_spam_classifier
+
 python -m venv venv
 ```
 
-Activate it:
-
-Windows:
+Activate the environment:
 
 ```bash
+# Windows
 venv\Scripts\activate
-```
 
-Linux / WSL:
-
-```bash
+# Linux / WSL
 source venv/bin/activate
 ```
 
@@ -236,23 +55,15 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Launch Jupyter Notebook:
+Run the notebooks in order:
+1. `spam_email_preprocessor.ipynb`
+2. `spam_email_classifier.ipynb`
 
-```bash
-jupyter notebook
-```
+## Key Finding
 
-Open the project notebook and execute the cells to reproduce the preprocessing, feature extraction, training, and evaluation workflow.
+The classifier achieved strong overall performance, but short legitimate emails were more challenging to identify correctly, highlighting an area for further improvement.
 
-## 11. Future Improvements
-
-- Compare Logistic Regression with Linear SVM and Naive Bayes.
-- Perform systematic hyperparameter tuning using GridSearchCV.
-- Compare word-only, character-only, and hybrid TF-IDF representations.
-- Investigate classification errors involving short legitimate emails and longer spam emails.
-- Experiment with classification thresholds to balance precision and recall.
-- Evaluate generalisation using an independent dataset containing emails from different sources.
-
----
-
-**Project focus:** Natural Language Processing | Text Classification | Feature Engineering | Machine Learning | Model Evaluation
+## Future Improvements
+- Improve classification of short legitimate emails.
+- Test on unseen, real-world email data.
+- Explore additional feature engineering and model tuning.
